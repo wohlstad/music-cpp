@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <ranges>
 #include <assert.h>
+#include <iomanip>
 
 
 class Note
@@ -91,17 +92,11 @@ public:
 		std::string str{ m_letter };
 		if (m_accCnt > 0)  // sharp
 		{
-			for (int i = 0; i < m_accCnt; ++i)
-			{
-				str += "#";
-			}
+			for (int i = 0; i <  m_accCnt; ++i)   str += "#";
 		}
 		else if (m_accCnt < 0) // flat
 		{
-			for (int i = 0; i < -m_accCnt; ++i)
-			{
-				str += "b";
-			}
+			for (int i = 0; i < -m_accCnt; ++i)  str += "b";
 		}
 		return str;
 	}
@@ -160,26 +155,44 @@ public:
 		std::vector<char> m_sharpsOrFlats{};   // e.g. {'F', 'C'} for D major scale
 	};
 
-	Entry const& GetEntry(Note const& note, bool bExact)
+	Entry const& GetEntry(Note const& note, bool bOnlyExact)
 	{
+		// first try to match exact:
 		for (Entry const& entry : m_entriess)
 		{
-			if (note.Equal(entry.m_root, bExact))
+			if (note.Equal(entry.m_root, true))
 				return entry;
 		}
-		assert(false);
-		std::unreachable();
+		if (!bOnlyExact)
+		{
+			// then try to match in-exact:
+			for (Entry const& entry : m_entriess)
+			{
+				if (note.Equal(entry.m_root, false))
+					return entry;
+			}
+		}
+		throw std::exception(std::format("CircleOfFifth::GetEntry: couln't find {} (only exact: {})", note.ToStr(), bOnlyExact).c_str());
 	}
 
-	Entry const& GetEntryOfRelMajor(Note const& note, bool bExact)
+	Entry const& GetEntryOfRelMajor(Note const& note, bool bOnlyExact)
 	{
+		// first try to match exact:
 		for (Entry const& entry : m_entriess)
 		{
-			if (note.Equal(entry.m_relMinorRoot, bExact))
+			if (note.Equal(entry.m_relMinorRoot, true))
 				return entry;
 		}
-		assert(false);
-		std::unreachable();
+		if (!bOnlyExact)
+		{
+			// then try to match in-exact:
+			for (Entry const& entry : m_entriess)
+			{
+				if (note.Equal(entry.m_relMinorRoot, false))
+					return entry;
+			}
+		}
+		throw std::exception(std::format("CircleOfFifth::GetEntryOfRelMajor: couln't find {} (only exact: {})", note.ToStr(), bOnlyExact).c_str());
 	}
 
 	static CircleOfFifth& Instance()
@@ -191,21 +204,24 @@ public:
 private:
 	CircleOfFifth()
 		: m_entriess{
-			{ Note{"C"},  Note{"A"},  false, {}},
-			{ Note{"G"},  Note{"E"},  true,  {'F'}},
-			{ Note{"D"},  Note{"B"},  true,  {'F', 'C'}},
-			{ Note{"A"},  Note{"F#"}, true,  {'F', 'C', 'G'}},
-			{ Note{"E"},  Note{"C#"}, true,  {'F', 'C', 'G', 'D'}},
-			{ Note{"B"},  Note{"G#"}, true,  {'F', 'C', 'G', 'D', 'A'}},
-			{ Note{"F#"}, Note{"D#"}, true,  {'F', 'C', 'G', 'D', 'A', 'E'}},
-			{ Note{"Db"}, Note{"Bb"}, false, {'B', 'E', 'A', 'D', 'G'}},
-			{ Note{"Ab"}, Note{"F"},  false, {'B', 'E', 'A', 'D'}},
-			{ Note{"Eb"}, Note{"C"},  false, {'B', 'E', 'A'}},
-			{ Note{"Bb"}, Note{"G"},  false, {'B', 'E'}},
-			{ Note{"F"},  Note{"D"},  false, {'B'}},
+//          | root      | rel minor | is-sharp | sharps/flats 		   
+			{ Note{"C"},  Note{"A"},  false,	 {}},
+			{ Note{"G"},  Note{"E"},  true,		 {'F'}},
+			{ Note{"D"},  Note{"B"},  true,		 {'F', 'C'}},
+			{ Note{"A"},  Note{"F#"}, true,		 {'F', 'C', 'G'}},
+			{ Note{"E"},  Note{"C#"}, true,		 {'F', 'C', 'G', 'D'}},
+			{ Note{"B"},  Note{"G#"}, true,		 {'F', 'C', 'G', 'D', 'A'}},
+			{ Note{"F#"}, Note{"D#"}, true,		 {'F', 'C', 'G', 'D', 'A', 'E'}},
+			{ Note{"C#"}, Note{"Bb"}, true,		 {'F', 'C', 'G', 'D', 'A', 'E', 'B'}},
+			{ Note{"Cb"}, Note{"G#"}, false,	 {'B', 'E', 'A', 'D', 'G', 'C', 'F'}},
+			{ Note{"Gb"}, Note{"Eb"}, false,	 {'B', 'E', 'A', 'D', 'G', 'C'}},
+			{ Note{"Db"}, Note{"Bb"}, false,	 {'B', 'E', 'A', 'D', 'G'}},
+			{ Note{"Ab"}, Note{"F"},  false,	 {'B', 'E', 'A', 'D'}},
+			{ Note{"Eb"}, Note{"C"},  false,	 {'B', 'E', 'A'}},
+			{ Note{"Bb"}, Note{"G"},  false,	 {'B', 'E'}},
+			{ Note{"F"},  Note{"D"},  false,	 {'B'}},
 		}
-	{
-	}
+	{}
 
 	std::vector<Entry> m_entriess;
 };
@@ -213,13 +229,14 @@ private:
 class Scale
 {
 public:
-	void Print()
+	std::string ToStr()
 	{
+		std::string str;
 		for (auto const& note : m_notes)
 		{
-			std::cout << note.ToStr() << " ";
+			str += note.ToStr() + " ";
 		}
-		std::cout << "\n";
+		return str;
 	}
 
 	std::array<Note, 7> const& GetNotes() const { return m_notes; }
@@ -230,11 +247,13 @@ protected:
 class ScaleMajor : public Scale
 {
 public:
-	ScaleMajor(Note const& note)
-	{
-		auto const& COF_entry = CircleOfFifth::Instance().GetEntry(note, false);
+	static inline std::string NAME_STR = "Major";
 
-		char curLetter = note.GetLetter();
+	ScaleMajor(Note const& root)
+	{
+		auto const& COF_entry = CircleOfFifth::Instance().GetEntry(root, true /*bOnlyExact*/);
+
+		char curLetter = root.GetLetter();
 		for (int i = 0; i < 7; ++i)
 		{
 			int curAccCnt = 0;
@@ -256,9 +275,11 @@ public:
 class ScaleMinor : public Scale
 {
 public:
-	ScaleMinor(Note const& note)
+	static inline std::string NAME_STR = "minor";
+
+	ScaleMinor(Note const& root)
 	{
-		auto const& COF_entryRelMaj = CircleOfFifth::Instance().GetEntryOfRelMajor(note, false);
+		auto const& COF_entryRelMaj = CircleOfFifth::Instance().GetEntryOfRelMajor(root, true /*bOnlyExact*/);
 		ScaleMajor relativeMaj{ COF_entryRelMaj.m_root };
 
 		auto const& relativeMajNotes = relativeMaj.GetNotes();
@@ -272,8 +293,10 @@ public:
 class ScaleMinorHarmonic : public ScaleMinor
 {
 public:
-	ScaleMinorHarmonic(Note const& note)
-		: ScaleMinor(note)
+	static inline std::string NAME_STR = "harmonic minor";
+
+	ScaleMinorHarmonic(Note const& root)
+		: ScaleMinor(root)
 	{
 		m_notes[6].RaiseSemitone();
 	}
@@ -282,11 +305,21 @@ public:
 class ScaleMinorMelodic : public ScaleMinor
 {
 public:
-	ScaleMinorMelodic(Note const& note)
-		: ScaleMinor(note)
+	static inline std::string NAME_STR = "melodic minor";
+
+	ScaleMinorMelodic(Note const& root)
+		: ScaleMinor(root)
 	{
 		m_notes[5].RaiseSemitone();
 		m_notes[6].RaiseSemitone();
 	}
 };
+
+
+template <typename TScale>
+std::string GetScaleName(Note const& root)
+{
+	std::string scaleName = root.ToStr() + " " + TScale::NAME_STR;
+	return scaleName;
+}
 
