@@ -3,18 +3,70 @@
 
 #include <iostream>
 
-int main()
+#include "MusicTypes.h"
+
+
+void test1(std::string_view noteStr)
 {
-    std::cout << "Hello World!\n";
+	Note n(noteStr);
+	std::cout << n.ToStrDebug() << "\n";
+	n.RaiseSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+	n.LowerSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+	n.LowerSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+	n.LowerSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+	n.LowerSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+	n.LowerSemitone();
+	std::cout << n.ToStrDebug() << "\n";
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+void test2(std::string_view noteStr)
+{
+	Note n(noteStr);
+	std::cout << n.ToStrDebug() << "\n";
+	n.LowerSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+	n.RaiseSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+	n.RaiseSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+	n.RaiseSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+	n.RaiseSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+	n.RaiseSemitone();
+	std::cout << n.ToStrDebug() << "\n";
+}
+
+
+int main() {
+
+	//	test2("Cbb");
+	//	test1("F##");
+		//{
+		//	ScaleMajor majScale{ Note{"Eb"} };
+		//	majScale.Print();
+		//}
+		//{
+		//	ScaleMajor majScale{ Note{"C#"} };
+		//	majScale.Print();
+		//}
+		//{
+		//	ScaleMajor majScale{ Note{"F"} };
+		//	majScale.Print();
+		//}
+		//{
+		//	ScaleMajor majScale{ Note{"Ab"} };
+		//	majScale.Print();
+		//}
+
+	{
+		ScaleMinor scale{ Note{"C#"} };
+		scale.Print();
+	}
+}
