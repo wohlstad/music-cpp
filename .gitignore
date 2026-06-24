@@ -1,0 +1,51 @@
+## --- Visual Studio User & Environment Settings ---
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## --- C++ Compilation Output & Build Directories ---
+# Standard build outputs
+[Debug]/
+[Release]/
+x64/
+x86/
+ARM/
+ARM64/
+
+# Intermediate MSBuild directories
+Build/
+bin/
+obj/
+
+# Specific file types to ignore across directories
+*.obj
+*.ilk
+*.pdb
+*.tlog
+*.lastbuildstate
+*.idb
+*.iobj
+*.ipdb
+*.exe
+*.dll
+*.lib
+
+## --- Visual Studio C++ Cache & Intellisense ---
+*.ncb
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+## --- CMake Build Outputs (If using CMake) ---
+CMakeSettings.json
+CMakeBuild.json
+out/
+
+## --- System & Backup Files ---
+*.bak
+*.log
+Thumbs.db
+.DS_Store
