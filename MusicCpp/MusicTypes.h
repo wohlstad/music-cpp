@@ -17,7 +17,7 @@ public:
 
 	Note(std::string_view str)
 	{
-		if (!FromStr(str))
+		if (!SetFromStr(str))
 			throw std::exception{ "invalid note" };
 	}
 
@@ -47,7 +47,7 @@ public:
 	}
 
 	// Init from a string like C# Db F## A  etc... 
-	bool FromStr(std::string_view str)
+	bool SetFromStr(std::string_view str)
 	{
 		if (str.size() == 0) return false;
 
@@ -212,8 +212,8 @@ private:
 			{ Note{"E"},  Note{"C#"}, true,		 {'F', 'C', 'G', 'D'}},
 			{ Note{"B"},  Note{"G#"}, true,		 {'F', 'C', 'G', 'D', 'A'}},
 			{ Note{"F#"}, Note{"D#"}, true,		 {'F', 'C', 'G', 'D', 'A', 'E'}},
-			{ Note{"C#"}, Note{"Bb"}, true,		 {'F', 'C', 'G', 'D', 'A', 'E', 'B'}},
-			{ Note{"Cb"}, Note{"G#"}, false,	 {'B', 'E', 'A', 'D', 'G', 'C', 'F'}},
+			{ Note{"C#"}, Note{"A#"}, true,		 {'F', 'C', 'G', 'D', 'A', 'E', 'B'}}, // rel minor changed from Bb to A#, so that Bb will go to Db only
+			{ Note{"Cb"}, Note{"Ab"}, false,	 {'B', 'E', 'A', 'D', 'G', 'C', 'F'}}, // rel minor changed from G# to Ab so that G# will go to B only
 			{ Note{"Gb"}, Note{"Eb"}, false,	 {'B', 'E', 'A', 'D', 'G', 'C'}},
 			{ Note{"Db"}, Note{"Bb"}, false,	 {'B', 'E', 'A', 'D', 'G'}},
 			{ Note{"Ab"}, Note{"F"},  false,	 {'B', 'E', 'A', 'D'}},

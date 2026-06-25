@@ -60,7 +60,7 @@ int main() {
 
 	try
 	{
-		PrintScale(Scale::ScaleType::NaturalMinor, Note{ "C" });
+		PrintScale(Scale::ScaleType::NaturalMinor, Note{ "G#" });
 
 		Quiz();
 		//{
