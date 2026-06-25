@@ -226,9 +226,50 @@ private:
 	std::vector<Entry> m_entriess;
 };
 
+
 class Scale
 {
 public:
+	enum class ScaleType : int  // values must be 0..n-1
+	{
+		Major = 0,
+		NaturalMinor,
+		HarmonicMinor,
+		MelodicMinor,
+
+		ScaleType_COUNT
+	};
+
+	static std::string ScaleTypeToStr(ScaleType type)
+	{
+		switch (type)
+		{
+		case ScaleType::Major: return "Major";
+		case ScaleType::NaturalMinor: return "natural minor";
+		case ScaleType::HarmonicMinor: return "harmonic minor";
+		case ScaleType::MelodicMinor: return "melodic minor";
+		default: assert(false); throw std::exception("ScaleTypeToStr FAILED: invalid type");
+		}
+	}
+
+	static std::string GetName(ScaleType type, Note const& root)
+	{
+		std::string scaleName = root.ToStr() + " " + ScaleTypeToStr(type);
+		return scaleName;
+	}
+
+	Scale(ScaleType type, Note const & root)
+	{
+		switch (type)
+		{
+		case ScaleType::Major: SetMajor(root); break;
+		case ScaleType::NaturalMinor: SetNaturalMinor(root); break;
+		case ScaleType::HarmonicMinor: SetHarmonicMinor(root); break;
+		case ScaleType::MelodicMinor: SetMelodicMinor(root); break;
+		default: assert(false); throw std::exception("Scale ctor FAILED: invalid type");
+		}
+	}
+
 	std::string ToStr()
 	{
 		std::string str;
@@ -240,19 +281,12 @@ public:
 	}
 
 	std::array<Note, 7> const& GetNotes() const { return m_notes; }
-protected:
-	std::array<Note, 7> m_notes;
-};
 
-class ScaleMajor : public Scale
-{
-public:
-	static inline std::string NAME_STR = "Major";
+private:
 
-	ScaleMajor(Note const& root)
+	void SetMajor(Note const& root)
 	{
 		auto const& COF_entry = CircleOfFifth::Instance().GetEntry(root, true /*bOnlyExact*/);
-
 		char curLetter = root.GetLetter();
 		for (int i = 0; i < 7; ++i)
 		{
@@ -270,56 +304,36 @@ public:
 			}
 		}
 	}
-};
 
-class ScaleMinor : public Scale
-{
-public:
-	static inline std::string NAME_STR = "minor";
-
-	ScaleMinor(Note const& root)
+	void SetNaturalMinor(Note const& root)
 	{
 		auto const& COF_entryRelMaj = CircleOfFifth::Instance().GetEntryOfRelMajor(root, true /*bOnlyExact*/);
-		ScaleMajor relativeMaj{ COF_entryRelMaj.m_root };
-
+		Scale relativeMaj{ ScaleType::Major, COF_entryRelMaj.m_root };
 		auto const& relativeMajNotes = relativeMaj.GetNotes();
 		for (int i = 0; i < 7; ++i)
 		{
 			m_notes[i] = relativeMajNotes[(i - 2 + 7) % 7];
 		}
 	}
-};
 
-class ScaleMinorHarmonic : public ScaleMinor
-{
-public:
-	static inline std::string NAME_STR = "harmonic minor";
-
-	ScaleMinorHarmonic(Note const& root)
-		: ScaleMinor(root)
+	void SetHarmonicMinor(Note const& root)
 	{
+		SetNaturalMinor(root);
+
+		// Raise the 7th (using zero based index 6):
 		m_notes[6].RaiseSemitone();
 	}
-};
 
-class ScaleMinorMelodic : public ScaleMinor
-{
-public:
-	static inline std::string NAME_STR = "melodic minor";
-
-	ScaleMinorMelodic(Note const& root)
-		: ScaleMinor(root)
+	void SetMelodicMinor(Note const& root)
 	{
+		SetNaturalMinor(root);
+
+		// Raise the 6th and 7th (using zero based index 5 and 6):
 		m_notes[5].RaiseSemitone();
 		m_notes[6].RaiseSemitone();
 	}
+
+
+	std::array<Note, 7> m_notes;
 };
-
-
-template <typename TScale>
-std::string GetScaleName(Note const& root)
-{
-	std::string scaleName = root.ToStr() + " " + TScale::NAME_STR;
-	return scaleName;
-}
 

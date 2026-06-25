@@ -9,50 +9,32 @@
 #include <assert.h>
 
 
-
-
-
 void Quiz()
 {
 	std::random_device dev;
 	std::mt19937 rng(dev());
-	std::uniform_int_distribution<int> distLetter(0, 6);		  // range [0, 6]
-	std::uniform_int_distribution<int> distAccidentalCnt (-1, 1); // range [-1, 1]
-	std::uniform_int_distribution<int> distScaleType3(1, 4);	  // range [1, 4]
+	std::uniform_int_distribution<int> distLetter(0, 6);		  // range [0, 6]: A .. G
+	std::uniform_int_distribution<int> distAccidentalCnt (-1, 1); // range [-1, 1]: -1: flat, 0:natural, 1:sharp
+	std::uniform_int_distribution<int> distScaleType(0, static_cast<int>(Scale::ScaleType::ScaleType_COUNT)-1);	  // range [0, 3]: 0: major,  1: minor,  2: harmonic minor, 3: melodic minor 
+
 	for (int i = 0; i < 30; ++i)
 	{
-		char letter = 'A' + distLetter(rng);	// A .. G
-		int accCnt = distAccidentalCnt(rng);    // -1 (flat) / 0 (natural) / 1 (sharp)
-		assert(letter >= 'A' && letter <= 'G');
-		assert(accCnt == -1 || accCnt == 0 || accCnt == 1);
-		int scaleType = distScaleType3(rng);	// 1: major,  2: minor,  3: harmonic minor, 4: melodic minor 
-		Note root(letter, accCnt);
-		std::unique_ptr<Scale> scale;
-		std::string scaleName;
-		switch (scaleType)
-		{
-		case 1: scaleName = GetScaleName<ScaleMajor>(root); break;
-		case 2: scaleName = GetScaleName<ScaleMinor>(root); break;
-		case 3: scaleName = GetScaleName<ScaleMinorHarmonic>(root); break;
-		case 4: scaleName = GetScaleName<ScaleMinorMelodic>(root); break;
-		default: assert(false); throw std::exception("quiz: unexpected scaleType");
-		}
+		char rootLetter = 'A' + distLetter(rng);	
+		int rootAccCnt = distAccidentalCnt(rng);    
+		assert(rootLetter >= 'A' && rootLetter <= 'G');
+		assert(rootAccCnt == -1 || rootAccCnt == 0 || rootAccCnt == 1);
+		Scale::ScaleType scaleType = static_cast<Scale::ScaleType>(distScaleType(rng));
+		assert(scaleType < Scale::ScaleType::ScaleType_COUNT);
+		Note root(rootLetter, rootAccCnt);
+		std::string scaleName = Scale::GetName(scaleType, root);
 		std::cout << scaleName;
 		try
 		{
-			switch (scaleType)
-			{
-			case 1: scale = std::make_unique<ScaleMajor>(root);	break;
-			case 2: scale = std::make_unique<ScaleMinor>(root);	break;
-			case 3: scale = std::make_unique<ScaleMinorHarmonic>(root);	break;
-			case 4: scale = std::make_unique<ScaleMinorMelodic>(root); break;
-			default: assert(false); throw std::exception("quiz: unexpected scaleType");
-			}
-
+			Scale scale{ scaleType, root };
 			std::cout << "   - press <ENTER> to reveal";
 			getchar();
 			std::cout << "--> ";
-			std::cout << scale->ToStr();
+			std::cout << scale.ToStr();
 		}
 		catch (std::exception const & ex)
 		{
@@ -63,13 +45,12 @@ void Quiz()
 }
 
 
-template<typename T>
-void PrintScale(Note const & root)
+void PrintScale(Scale::ScaleType type, Note const& root)
 {
-	std::string scaleName = GetScaleName<T>(root);
+	std::string scaleName = Scale::GetName(type, root);
 	std::cout << scaleName << ":  ";
 
-	T scale{ root };
+	Scale scale{ type, root };
 	std::cout << scale.ToStr();
 	std::cout << "\n";
 }
@@ -79,7 +60,8 @@ int main() {
 
 	try
 	{
-		//PrintScale<ScaleMinor>(Note{ "F" });
+		PrintScale(Scale::ScaleType::NaturalMinor, Note{ "C" });
+
 		Quiz();
 		//{
 		//	ScaleMajor{ Note{"Gb"} }.Print();
