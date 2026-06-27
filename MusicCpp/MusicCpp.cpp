@@ -61,6 +61,10 @@ int main() {
 	try
 	{
 		PrintScale(Scale::ScaleType::NaturalMinor, Note{ "G#" });
+		std::cout << "\n";
+
+//		Scale scale{ Scale::ScaleType::Major, Note{ "C" } };
+//		scale = Scale{ Scale::ScaleType::Major, Note{ "D" } };
 
 		Quiz();
 		//{

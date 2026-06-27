@@ -15,7 +15,7 @@ class Note
 public:
 	Note() {}
 
-	Note(std::string_view str)
+	Note(std::string_view str)  noexcept(false)
 	{
 		if (!SetFromStr(str))
 			throw std::exception{ "invalid note" };
@@ -155,7 +155,7 @@ public:
 		std::vector<char> m_sharpsOrFlats{};   // e.g. {'F', 'C'} for D major scale
 	};
 
-	Entry const& GetEntry(Note const& note, bool bOnlyExact)
+	Entry const& GetEntry(Note const& note, bool bOnlyExact) noexcept(false)
 	{
 		// first try to match exact:
 		for (Entry const& entry : m_entriess)
@@ -175,7 +175,7 @@ public:
 		throw std::exception(std::format("CircleOfFifth::GetEntry: couln't find {} (only exact: {})", note.ToStr(), bOnlyExact).c_str());
 	}
 
-	Entry const& GetEntryOfRelMajor(Note const& note, bool bOnlyExact)
+	Entry const& GetEntryOfRelMajor(Note const& note, bool bOnlyExact) noexcept(false)
 	{
 		// first try to match exact:
 		for (Entry const& entry : m_entriess)
@@ -258,7 +258,7 @@ public:
 		return scaleName;
 	}
 
-	Scale(ScaleType type, Note const & root)
+	Scale(ScaleType type, Note const & root)  noexcept(false)
 	{
 		switch (type)
 		{
@@ -284,7 +284,7 @@ public:
 
 private:
 
-	void SetMajor(Note const& root)
+	void SetMajor(Note const& root) 
 	{
 		auto const& COF_entry = CircleOfFifth::Instance().GetEntry(root, true /*bOnlyExact*/);
 		char curLetter = root.GetLetter();
@@ -305,7 +305,7 @@ private:
 		}
 	}
 
-	void SetNaturalMinor(Note const& root)
+	void SetNaturalMinor(Note const& root) 
 	{
 		auto const& COF_entryRelMaj = CircleOfFifth::Instance().GetEntryOfRelMajor(root, true /*bOnlyExact*/);
 		Scale relativeMaj{ ScaleType::Major, COF_entryRelMaj.m_root };
@@ -316,7 +316,7 @@ private:
 		}
 	}
 
-	void SetHarmonicMinor(Note const& root)
+	void SetHarmonicMinor(Note const& root) 
 	{
 		SetNaturalMinor(root);
 
@@ -324,7 +324,7 @@ private:
 		m_notes[6].RaiseSemitone();
 	}
 
-	void SetMelodicMinor(Note const& root)
+	void SetMelodicMinor(Note const& root) 
 	{
 		SetNaturalMinor(root);
 
