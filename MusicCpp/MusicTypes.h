@@ -32,8 +32,8 @@ public:
 			throw std::exception{ "invalid note" };
 	}
 
-	char GetLetter() const { return m_letter; }
-	int GetAccCnt()  const { return m_accCnt; }
+	char Letter() const { return m_letter; }
+	int AccCnt()  const { return m_accCnt; }
 
 	bool Equal(Note const& rhs, bool bExact) const
 	{
@@ -257,7 +257,7 @@ public:
 		}
 	}
 
-	static std::string GetName(ScaleType type, Note const& root)
+	static std::string GetScaleGenericName(ScaleType type, Note const& root)
 	{
 		std::string scaleName = root.ToStr() + " " + ScaleTypeToStr(type);
 		return scaleName;
@@ -283,7 +283,7 @@ public:
 		}
 
 		// Determine scale name:
-		m_name = root.ToStr() + " " + ScaleTypeToStr(type);
+		m_name = GetScaleGenericName(type, root);
 	}
 
 	std::string ToStr()
@@ -296,15 +296,15 @@ public:
 		return str;
 	}
 
-	std::array<Note, 7> const& GetNotes() const { return m_notes; }
-	std::string const& GetName() const			{ return m_name; }
+	std::array<Note, 7> const& Notes() const { return m_notes; }
+	std::string const&		   Name()  const { return m_name; }
 
 private:
 
 	void SetMajor(Note const& root) 
 	{
 		auto const& COF_entry = CircleOfFifth::Instance().GetEntry(root, true /*bOnlyExact*/);
-		char curLetter = root.GetLetter();
+		char curLetter = root.Letter();
 		for (int i = 0; i < 7; ++i)
 		{
 			int curAccCnt = 0;
@@ -326,7 +326,7 @@ private:
 	{
 		auto const& COF_entryRelMaj = CircleOfFifth::Instance().GetEntryOfRelMajor(root, true /*bOnlyExact*/);
 		Scale relativeMaj{ ScaleType::Major, COF_entryRelMaj.m_root };
-		auto const& relativeMajNotes = relativeMaj.GetNotes();
+		auto const& relativeMajNotes = relativeMaj.Notes();
 		for (int i = 0; i < 7; ++i)
 		{
 			m_notes[i] = relativeMajNotes[(i - 2 + 7) % 7];
@@ -368,7 +368,7 @@ public:
 		, m_distScaleType{ 0, static_cast<int>(Scale::ScaleType::ScaleType_COUNT) - 1 }
 	{}
 
-	// Get bext scale or error msg:
+	// Get next random scale or error msg:
 	std::expected<Scale, std::string> GetNext()
 	{
 		// Get random root note and scale type:
@@ -386,7 +386,7 @@ public:
 		}
 		catch (std::exception const& ex)
 		{
-			std::string scaleName = Scale::GetName(scaleType, root);
+			std::string scaleName = Scale::GetScaleGenericName(scaleType, root);
 			return std::unexpected(scaleName + " - FAILED to create : " + ex.what());
 		}
 	}
