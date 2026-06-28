@@ -44,6 +44,27 @@ void Quiz()
 	}
 }
 
+void Quiz2(int numRounds)
+{
+	RandomScaleGenerator scaleGen;
+	for (int i = 0; i < numRounds; ++i)
+	{
+		auto res = scaleGen.GetNext();
+		if (res)
+		{
+			std::cout << res.value().GetName();
+			std::cout << " - press <ENTER> to reveal";
+			getchar();
+			std::cout << "--> " << res.value().ToStr() << "\n";
+		}
+		else
+		{
+			std::cout << res.error() << "\n";
+		}
+		std::cout << "\n\n";
+	}
+}
+
 
 void PrintScale(Scale::ScaleType type, Note const& root)
 {
@@ -60,25 +81,13 @@ int main() {
 
 	try
 	{
-		PrintScale(Scale::ScaleType::NaturalMinor, Note{ "G#" });
-		std::cout << "\n";
+//		PrintScale(Scale::ScaleType::NaturalMinor, Note{ "G#" });
+//		std::cout << "\n";
 
 //		Scale scale{ Scale::ScaleType::Major, Note{ "C" } };
 //		scale = Scale{ Scale::ScaleType::Major, Note{ "D" } };
 
-		Quiz();
-		//{
-		//	ScaleMajor{ Note{"Gb"} }.Print();
-		//}
-		//{
-		//	ScaleMinor{ Note{"D"} }.Print();
-		//}
-		//{
-		//	ScaleMinorHarmonic{ Note{"C#"} }.Print();
-		//}
-		//{
-		//	ScaleMinorMelodic{ Note{"C#"} }.Print();
-		//}
+		Quiz2(30);
 	}
 	catch (std::exception const& ex)
 	{

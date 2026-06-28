@@ -8,6 +8,8 @@
 #include <ranges>
 #include <assert.h>
 #include <iomanip>
+#include <random>
+#include <expected>
 
 
 class Note
@@ -21,10 +23,13 @@ public:
 			throw std::exception{ "invalid note" };
 	}
 
-	Note(char letter, int accCnt)
+	Note(char letter, int accCnt) noexcept(false)
 		: m_letter{ letter }
 		, m_accCnt{ accCnt }
 	{
+		assert(letter >= 'A' || letter <= 'G');
+		if (letter < 'A' || letter > 'G')
+			throw std::exception{ "invalid note" };
 	}
 
 	char GetLetter() const { return m_letter; }
@@ -258,8 +263,16 @@ public:
 		return scaleName;
 	}
 
+	Scale()
+	{
+		m_name = "";
+	}
+
 	Scale(ScaleType type, Note const & root)  noexcept(false)
 	{
+		// Reset the name in case creation below will fail:
+		m_name = "";
+
 		switch (type)
 		{
 		case ScaleType::Major: SetMajor(root); break;
@@ -268,6 +281,9 @@ public:
 		case ScaleType::MelodicMinor: SetMelodicMinor(root); break;
 		default: assert(false); throw std::exception("Scale ctor FAILED: invalid type");
 		}
+
+		// Determine scale name:
+		m_name = root.ToStr() + " " + ScaleTypeToStr(type);
 	}
 
 	std::string ToStr()
@@ -281,6 +297,7 @@ public:
 	}
 
 	std::array<Note, 7> const& GetNotes() const { return m_notes; }
+	std::string const& GetName() const			{ return m_name; }
 
 private:
 
@@ -335,5 +352,49 @@ private:
 
 
 	std::array<Note, 7> m_notes;
+	std::string			m_name;
 };
 
+
+
+class RandomScaleGenerator
+{
+public:
+	RandomScaleGenerator()
+		: m_dev{}
+		, m_rng{m_dev()}
+		, m_distLetter{0,6}
+		, m_distAccidentalCnt{ -1, 1 }
+		, m_distScaleType{ 0, static_cast<int>(Scale::ScaleType::ScaleType_COUNT) - 1 }
+	{}
+
+	// Get bext scale or error msg:
+	std::expected<Scale, std::string> GetNext()
+	{
+		// Get random root note and scale type:
+		char rootLetter = 'A' + m_distLetter(m_rng);
+		int rootAccCnt = m_distAccidentalCnt(m_rng);
+		assert(rootLetter >= 'A' && rootLetter <= 'G');
+		assert(rootAccCnt == -1 || rootAccCnt == 0 || rootAccCnt == 1);
+		Note root(rootLetter, rootAccCnt);
+		Scale::ScaleType scaleType = static_cast<Scale::ScaleType>(m_distScaleType(m_rng));
+		assert(scaleType < Scale::ScaleType::ScaleType_COUNT);
+
+		try
+		{
+			return Scale{ scaleType, root };
+		}
+		catch (std::exception const& ex)
+		{
+			std::string scaleName = Scale::GetName(scaleType, root);
+			return std::unexpected(scaleName + " - FAILED to create : " + ex.what());
+		}
+	}
+
+private:
+	std::random_device m_dev;
+	std::mt19937 m_rng;
+	std::uniform_int_distribution<int> m_distLetter;		// range [0, 6]: A .. G
+	std::uniform_int_distribution<int> m_distAccidentalCnt; // range [-1, 1]: -1: flat, 0:natural, 1:sharp
+	std::uniform_int_distribution<int> m_distScaleType;		// range [0, 3]: 0: major,  1: minor,  2: harmonic minor, 3: melodic minor 
+};
