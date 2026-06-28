@@ -4,9 +4,6 @@
 #include <iostream>
 
 #include "MusicTypes.h"
-#include <random>
-#include <memory>
-#include <assert.h>
 
 
 void Quiz(int numRounds)
