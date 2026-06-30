@@ -217,8 +217,8 @@ private:
 			{ Note{"E"},  Note{"C#"}, true,		 {'F', 'C', 'G', 'D'}},
 			{ Note{"B"},  Note{"G#"}, true,		 {'F', 'C', 'G', 'D', 'A'}},
 			{ Note{"F#"}, Note{"D#"}, true,		 {'F', 'C', 'G', 'D', 'A', 'E'}},
-			{ Note{"C#"}, Note{"A#"}, true,		 {'F', 'C', 'G', 'D', 'A', 'E', 'B'}}, // rel minor changed from Bb to A#, so that Bb will go to Db only
-			{ Note{"Cb"}, Note{"Ab"}, false,	 {'B', 'E', 'A', 'D', 'G', 'C', 'F'}}, // rel minor changed from G# to Ab so that G# will go to B only
+			{ Note{"C#"}, Note{"A#"}, true,		 {'F', 'C', 'G', 'D', 'A', 'E', 'B'}},
+			{ Note{"Cb"}, Note{"Ab"}, false,	 {'B', 'E', 'A', 'D', 'G', 'C', 'F'}},
 			{ Note{"Gb"}, Note{"Eb"}, false,	 {'B', 'E', 'A', 'D', 'G', 'C'}},
 			{ Note{"Db"}, Note{"Bb"}, false,	 {'B', 'E', 'A', 'D', 'G'}},
 			{ Note{"Ab"}, Note{"F"},  false,	 {'B', 'E', 'A', 'D'}},
