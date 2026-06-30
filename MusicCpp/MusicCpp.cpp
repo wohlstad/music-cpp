@@ -2,8 +2,16 @@
 //
 
 #include <iostream>
+#include <limits>
+
 
 #include "MusicTypes.h"
+
+
+void WaitForENTER() 
+{
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
 
 
 void Quiz(int numRounds)
@@ -16,8 +24,8 @@ void Quiz(int numRounds)
 		{
 			auto& scale = res.value();
 			std::cout << scale.Name();
-			std::cout << " - press <ENTER> to reveal";
-			getchar();
+			std::cout << " - press <ENTER> to reveal ";
+			WaitForENTER();
 			std::cout << "--> " << scale.ToStr() << "\n";
 		}
 		else
